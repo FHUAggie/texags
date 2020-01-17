@@ -5,135 +5,129 @@ import utility
 import urllib
 import re
 
-# Class for methods that open URLs and access data
-class Utility(object):
-	def __init__(self):
-		pass
+# Selenium & MySQL essentials
+driver = webdriver.Chrome("<INSERT YOUR DRIVER PATH HERE")
+cnx = mysql.connector.connect(user ='XXXXX', password = 'XXXXX',
+	host = 'XXXXX', database = 'XXXXX', auth_plugin = 'XXXXX')
+cursor = cnx.cursor()
 
-	# Using utility.py to build all necessary URLs to scrape
-	def build_urls(self):
-		urls = []
+# Lise to hold failed player rows
+failed_players = []
+failed_urls = []
 
-		for year in range(2012, 2021):
-			for team in utility.rivals_teams:
-				url = "https://" + team + ".rivals.com/commitments/football/" + str(year)
-			
-				urls.append(url)
+# Builds all URLs for scraping
+def build_urls():
+	urls = []
 
-		return(urls)
+	for year in range(2012, 2021):
+		for team in utility.rivals_teams:
+			url = "https://" + team + ".rivals.com/commitments/football/" + str(year)
+			urls.append(url)
 
-	# Open URL, focus on proper elements on page
-	def access_url(self, url):
-		try:
-			driver = webdriver.Chrome("<INSERT YOUR DRIVER PATH HERE")
-			driver.get(url)
-			driver.implicitly_wait(5)
-			team_player_data = driver.find_element_by_xpath('//*[@id="articles"]/rv-commitments').text
+	return(urls)
 
-			indexer = url.find(".")
-			team = url[8:indexer]
-			year = url[-4:]
+# Open and scrape URL
+def scrape(url):
+	driver.get(url)
+	driver.implicitly_wait(5)
+	class_data = driver.find_element_by_xpath('//*[@id="articles"]/rv-commitments').text.splitlines()
+	indexer = url.find(".")
+	team = url[8:indexer]
+	year = url[-4:]
 
-			for key, val in utility.teams_dict.items():
-				if team == key:
-					team_name = val
+	return(year, team, class_data)
 
-			driver.close()
+# Parse scraped data, prep for database committing
+def compiler(year, team, class_data):
+	players = ""
+	pre_data = []
+	player_data = []
 
-			return(year, team_name, team_player_data)
+	for key, val in utility.teams_dict.items():
+		if team == key:
+			team_name = val
 
-		except Exception as e:
-			print(e, "access_url()")
+	for item in class_data[1:]:
+		item.replace("'", "")
+		if item.strip() == "SIGNED" or item.strip() == "VERBAL" or item.strip() == "SOFT":
+			players = players + item.strip() + "|"
+			players = players + "|||" + "|"
 
-	# Committing web scrape to database
-	def db_commit(self, columns, players):
-		cnx = mysql.connector.connect(user ='XXXX', password = 'XXXXX',
-			host = 'XXXXX', database = 'XXXXX',
-			auth_plugin = 'XXXXX')
+		else:
+			players = players + item.strip() + "|"
 
-		cursor = cnx.cursor()
+	columns = ["YEAR", "TEAM"] + class_data[0].split() + ["STATUS"]
 
-		for item in players:
-			column = ', '.join(columns)
-			player = ', '.join(["'" + str(x) + "'" for x in item])
+	for item in players.split("|||"):
+		pre_data.append(item.split("|"))
 
-			try:
+	for item in pre_data:
+		stars = 0
+		for val in item:
+			if val == '':
+				item.remove(val)
 
-				cursor.execute("""INSERT INTO <TABLE_NAME_HERE> (%s) VALUES (%s);""" % (column, player))
-				cnx.commit()
+		for val in item:
+			if val == '':
+				item.remove(val)
 
-				print(player, "Successfully committed to database.")
+		if item:
+			for val in item:
+				if '"' in val:
+					index = item.index(val)
+					h, i = val.split("'")
+					item[index] = ((int(h) * 12) + int(i[:-1]))
 
-			except Exception as e:
-				print(player, e, "UNSUCCESSFUL IN COMMITTING TO DATABASE.")
-
-# Class with methods to take mold scraped data
-class Scraper(object):
-	def __init__(self):
-		pass
-
-	def scrape_url(self, year, team_name, team_player_data):
-		raw_data = []
-		players = []
-
-		# Converting height into feet, inches
-		for item in team_player_data.splitlines():
-			if '"' in item:
-				raw_height = item.split("'")
-				feet = int(raw_height[0])
-				inches = int(re.findall(r'\d+', raw_height[1])[0])
-				height = str((feet * 12) + inches)
-				raw_data.append(height)
-
+			rating = float(item[-3])
+					
+			if rating == 6.1:
+				stars = 5
+			elif rating <= 6 and rating >= 5.8:
+				stars = 4
+			elif rating < 5.8 and rating > 5.4:
+				stars = 3
+			elif rating <=5.4 and rating >= 5.2:
+				stars = 2
 			else:
-				raw_data.append(item.replace("'", ""))
-
-		try:
-			columns = raw_data[0].split()
-			player_data = raw_data[1:]
-
-		except Exception as e:
-			print(e, year, team_name)
-
-		# Building initial player rows
-		try:
-			for number in range(0, len(player_data), len(columns)):
-				player = player_data[number:number + len(columns)]
-
-				# Accounting for pages (2012 Oregon) with no for weight value
-				try:
-					rating = float(player[5])
-
-				except:
-					player.insert(4, 200)
-					rating = float(player[5])
-
 				stars = 0
 
-				# Generating # of stars based on Rivals rating
-				if rating == 6.1:
-					stars = 5
-				elif rating <= 6 and rating >= 5.8:
-					stars = 4
-				elif rating < 5.8 and rating > 5.4:
-					stars = 3
-				elif rating <=5.4 and rating >= 5.2:
-					stars = 2
-				else:
-					stars = 0
-
-				player.insert(5, stars)
-				player = player[:-1]
-				# Adding in the year, team_name values
-				player = [year, team_name] +  player
-				players.append(player)
+			item.insert(-3, stars)
+			item = [year, team_name] + item
 			
-			# Adding in the year, college team columns
-			columns = ["YEAR", "TEAM"] + columns
+			if len(item) == len(columns):
+				player_data.append(item)
+			else:
+				failed_players.append(item)
+				print("Player row failed")
 
-			return(columns, players)
+	return(columns, player_data)
+
+# Commit scraped data to database
+def commit(columns, player_data):
+	for item in player_data:
+		column = ', '.join(columns)
+		player = ', '.join(["'" + str(x).replace("'", "") + "'" for x in item])
+
+		try:
+			cursor.execute("""INSERT INTO <YOUR TABLE NAME HERE> (%s) VALUES (%s);""" % (column, player))
+			cnx.commit()
 
 		except Exception as e:
-			print(e, year, team_name)
-			pass
-      
+			print(player, e, "UNSUCCESSFUL IN COMMITTING TO DATABASE.")
+
+urls = build_urls()
+
+for url in urls:
+	try:
+		scraper = scrape(url)
+		data = compiler(scraper[0], scraper[1], scraper[2])
+		committed = commit(data[0], data[1])
+		print("URL succesfully scraped " + url)
+
+	except Exception as e:
+		print("URL scrape unsuccessful " + url, e)
+		failed_urls.append(url)
+
+print(failed_players)
+print(failed_urls)
+
