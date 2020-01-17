@@ -1,5 +1,11 @@
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
+import mysql.connector
+
+# MySQL essentials
+cnx = mysql.connector.connect(user ='XXXXX', password = 'XXXXX',
+	host = 'XXXXX', database = 'XXXXX', auth_plugin = 'XXXXX')
+cursor = cnx.cursor()
 
 # Class for prepping data for scraping
 class Utility(object):
@@ -32,7 +38,7 @@ class Scraper(object):
   # Scrapes, parses, and structures data for database
 	def scrape_draft_data(self, year, html):
 		ignore = ["SEL #", "TEAM", "PLAYER", "POSITION", "SCHOOL"]
-		columns = ["Pick_Number", "Team", "Player", "Position", "College"]
+		columns = ["Pick", "Team", "Player", "Position", "College"]
 		
 		raw_data = []
 		draft_data = []
@@ -56,5 +62,19 @@ class Scraper(object):
 
 		return(columns, draft_data)
 
-	# Add database committment method here to complete program
+	# Commit values to database
+	def commit(self, columns, draft_data):
+		for item in draft_data:
+			column = ', '.join(columns)
+			player = ', '.join(["'" + str(x).replace("'", "") + "'" for x in item])
+
+			print(column)
+			print(player)
+
+			try:
+				cursor.execute("""INSERT INTO <YOUR TABLE NAME HERE> (%s) VALUES (%s);""" % (column, player))
+				cnx.commit()
+
+			except Exception as e:
+				print(player, e, "UNSUCCESSFUL IN COMMITTING TO DATABASE.")
 
