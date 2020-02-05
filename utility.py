@@ -133,6 +133,7 @@ cfbstats_urls = [
 'http://www.cfbstats.com/2019/team/811/index.html']
 
 # Constructed from recruitscraper.py, team_id_builder()
+
 cfbstats_dict = {
 '5': 'Akron Zips', '8': 'Alabama Crimson Tide', '9': 'UAB Blazers', 
 '27': 'Appalachian State Mountaineers', '28': 'Arizona State Sun Devils', 
@@ -186,6 +187,8 @@ cfbstats_dict = {
 '768': 'West Virginia Mountaineers', '772': 'Western Kentucky Hilltoppers', 
 '774': 'Western Michigan Broncos', '796': 'Wisconsin Badgers', '811': 'Wyoming Cowboys'}
 
+# CFBStats.com URL suffixes to iterate through and build full URLs to scrape
+
 page_url_suffixes = ['/roster.html', '/rushing/index.html', '/passing/index.html', 
 '/receiving/index.html', '/puntreturn/index.html', '/kickreturn/index.html', 
 '/punting/index.html', '/kickoff/index.html', '/scoring/index.html', 
@@ -194,3 +197,53 @@ page_url_suffixes = ['/roster.html', '/rushing/index.html', '/passing/index.html
 '/sack/index.html', '/miscdefense/index.html', '/firstdown/offense/split.html', 
 '/penalty/offense/split.html', '/thirddown/offense/split.html', '/fourthdown/offense/split.html', 
 '/redzone/offense/split.html', '/turnovermargin/split.html']
+
+#add and correct later for : '/kicking/index.html'
+
+# List of ESPN team names and their appropriate IDs.
+
+espn_list = [('Cincinnati Bearcats', ['2132']), ('East Carolina Pirates', ['151']),
+('Houston Cougars', ['248']), ('Memphis Tigers', ['235']), ('Navy Midshipmen', ['2426']),
+('SMU Mustangs', ['2567']), ('South Florida Bulls', ['58']), ('Temple Owls', ['218']),
+('Tulane Green Wave', ['2655']), ('Tulsa Golden Hurricane', ['202']), ('UCF Knights', ['2116']),
+('UConn Huskies', ['41']), ('Boston College Eagles', ['103']), ('Clemson Tigers', ['228']),
+('Duke Blue Devils', ['150']), ('Florida State Seminoles', ['52']), ('Georgia Tech Yellow Jackets', ['59']),
+('Louisville Cardinals', ['97']), ('Miami Hurricanes', ['2390']), ('NC State Wolfpack', ['152']),
+('North Carolina Tar Heels', ['153']), ('Pittsburgh Panthers', ['221']), ('Syracuse Orange', ['183']),
+('Virginia Cavaliers', ['258']), ('Virginia Tech Hokies', ['259']), ('Wake Forest Demon Deacons', ['154']),
+('Baylor Bears', ['239']), ('Iowa State Cyclones', ['66']), ('Kansas Jayhawks', ['2305']),
+('Kansas State Wildcats', ['2306']), ('Oklahoma Sooners', ['201']), ('Oklahoma State Cowboys', ['197']),
+('TCU Horned Frogs', ['2628']), ('Texas Longhorns', ['251']), ('Texas Tech Red Raiders', ['2641']),
+('West Virginia Mountaineers', ['277']), ('Illinois Fighting Illini', ['356']), ('Indiana Hoosiers', ['84']),
+('Iowa Hawkeyes', ['2294']), ('Maryland Terrapins', ['120']), ('Michigan State Spartans', ['127']),
+('Michigan Wolverines', ['130']), ('Minnesota Golden Gophers', ['135']), ('Nebraska Cornhuskers', ['158']),
+('Northwestern Wildcats', ['77']), ('Ohio State Buckeyes', ['194']), ('Penn State Nittany Lions', ['213']),
+('Purdue Boilermakers', ['2509']), ('Rutgers Scarlet Knights', ['164']), ('Wisconsin Badgers', ['275']),
+('Charlotte 49ers', ['2429', '49']), ('Florida Atlantic Owls', ['2226']),
+('Florida International Panthers', ['2229']), ('Louisiana Tech Bulldogs', ['2348']),
+('Marshall Thundering Herd', ['276']), ('Middle Tennessee Blue Raiders', ['2393']),
+('North Texas Mean Green', ['249']), ('Old Dominion Monarchs', ['295']), ('Rice Owls', ['242']),
+('Southern Mississippi Golden Eagles', ['2572']), ('UAB Blazers', ['5']), ('UTEP Miners', ['2638']),
+('UTSA Roadrunners', ['2636']), ('Western Kentucky Hilltoppers', ['98']), ('Army Black Knights', ['349']),
+('BYU Cougars', ['252']), ('Liberty Flames', ['2335']), ('New Mexico State Aggies', ['166']),
+('Notre Dame Fighting Irish', ['87']), ('UMass Minutemen', ['113']), ('Akron Zips', ['2006']),
+('Ball State Cardinals', ['2050']), ('Bowling Green Falcons', ['189']), ('Buffalo Bulls', ['2084']),
+('Central Michigan Chippewas', ['2117']), ('Eastern Michigan Eagles', ['2199']),
+('Kent State Golden Flashes', ['2309']), ('Miami (OH) RedHawks', ['193']), ('Northern Illinois Huskies', ['2459']),
+('Ohio Bobcats', ['195']), ('Toledo Rockets', ['2649']), ('Western Michigan Broncos', ['2711']),
+('Air Force Falcons', ['2005']), ('Boise State Broncos', ['68']), ('Colorado State Rams', ['36']),
+('Fresno State Bulldogs', ['278']), ("Hawai'i Rainbow Warriors", ['62']), ('Nevada Wolf Pack', ['2440']),
+('New Mexico Lobos', ['167']), ('San Diego State Aztecs', ['21']), ('San Jose State Spartans', ['23']),
+('UNLV Rebels', ['2439']), ('Utah State Aggies', ['328']), ('Wyoming Cowboys', ['2751']),
+('Arizona State Sun Devils', ['9']), ('Arizona Wildcats', ['12']), ('California Golden Bears', ['25']),
+('Colorado Buffaloes', ['38']), ('Oregon Ducks', ['2483']), ('Oregon State Beavers', ['204']),
+('Stanford Cardinal', ['24']), ('UCLA Bruins', ['26']), ('USC Trojans', ['30']), ('Utah Utes', ['254']),
+('Washington Huskies', ['264']), ('Washington State Cougars', ['265']), ('Alabama Crimson Tide', ['333']),
+('Arkansas Razorbacks', ['8']), ('Auburn Tigers', ['2']), ('Florida Gators', ['57']), ('Georgia Bulldogs', ['61']),
+('Kentucky Wildcats', ['96']), ('LSU Tigers', ['99']), ('Mississippi State Bulldogs', ['344']),
+('Missouri Tigers', ['142']), ('Ole Miss Rebels', ['145']), ('South Carolina Gamecocks', ['2579']),
+('Tennessee Volunteers', ['2633']), ('Texas A&M Aggies', ['245']), ('Vanderbilt Commodores', ['238']),
+('Appalachian State Mountaineers', ['2026']), ('Arkansas State Red Wolves', ['2032']),
+('Coastal Carolina Chanticleers', ['324']), ('Georgia Southern Eagles', ['290']),
+('Georgia State Panthers', ['2247']), ("Louisiana Ragin' Cajuns", ['309']), ('South Alabama Jaguars', ['6']),
+('Texas State Bobcats', ['326']), ('Troy Trojans', ['2653']), ('UL Monroe Warhawks', ['2433'])]
