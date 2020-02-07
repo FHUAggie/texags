@@ -1,7 +1,6 @@
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
 import mysql.connector
-import requests
 import utility
 import re
 
